@@ -1,5 +1,5 @@
-const { Schema } = require("mongoose");
-const mongoose = require("mongoose");
+const { Schema } = require('mongoose');
+const mongoose = require('mongoose');
 
 const HoleSchema = new Schema({
   holeNumber: { type: Number, min: 1, max: 27, required: true },
@@ -15,10 +15,10 @@ const MatchSchema = new Schema({
     holes: { type: Number, min: 1, max: 27, required: true }
   },
   date: { type: Date, required: true, default: new Date() },
-  holes: [HoleSchema] // { id: "1", par: 4, score: 5 }
+  holes: [HoleSchema]
 });
 
-const Match = mongoose.model("Match", MatchSchema);
+const Match = mongoose.model('Match', MatchSchema);
 
 // const newMatch = new Match({
 // course: {
@@ -70,15 +70,6 @@ const Match = mongoose.model("Match", MatchSchema);
 //     { holeNumber: 9, par: 5, score: 4 }
 //   ]
 // });
-
-// newMatch.save().then(
-//   doc => {
-//     console.log("Saved match", doc);
-//   },
-//   e => {
-//     console.log("Unable to save match");
-//   }
-// );
 
 module.exports = {
   Match

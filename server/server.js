@@ -1,14 +1,15 @@
-const express = require("express");
-const bodyParser = require("body-parser");
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-const { mongoose } = require("./db/mongoose");
-const { Match } = require("./models/match");
+const { mongoose } = require('./db/mongoose');
+const { Match } = require('./models/match');
 
 const app = express();
 
-app.use(bodyParser.json()); // use bodyParser middleware
+app.use(bodyParser.json(), cors()); // use bodyParser middleware
 
-app.post("/matches", (req, res) => {
+app.post('/matches', (req, res) => {
   console.log(req.body);
   const match = new Match(req.body);
 
@@ -22,6 +23,22 @@ app.post("/matches", (req, res) => {
   );
 });
 
-app.listen(3000, () => {
-  console.log("Started on port 3000");
+app.get('/matches', (req, res) => {
+  console.log(req.body);
+
+  Match.find()
+    .then(matches => {
+      res.send({ matches });
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    });
 });
+
+app.listen(8080, () => {
+  console.log('Started on port 8080');
+});
+
+module.exports = {
+  app
+};

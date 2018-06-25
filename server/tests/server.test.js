@@ -71,3 +71,26 @@ describe('DELETE /matches/:id', () => {
       });
   });
 });
+
+describe('PATCH /matches/:id', () => {
+  it('should update the match', done => {
+    const hexId = matches[0]._id.toHexString();
+
+    request(app)
+      .patch(`/matches/${hexId}`)
+      .send({
+        course: {
+          name: 'Super Secret Golf Course',
+          location: 'Yuba City, CA',
+          par: 72,
+          holes: 18
+        }
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.match.course.name).toBe('Super Secret Golf Course');
+        expect(res.body.match.course.location).toBe('Yuba City, CA');
+      })
+      .end(done);
+  });
+});

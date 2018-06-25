@@ -1,6 +1,6 @@
 require('./config/config');
 
-// const _ = require('lodash');
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
@@ -60,6 +60,27 @@ app.delete('/matches/:id', (req, res) => {
     .catch(e => {
       res.status(400).send();
     });
+});
+
+// PATCH /matches/:id
+app.patch('/matches/:id', (req, res) => {
+  var id = req.params.id;
+
+  var body = _.pick(req.body, ['course', 'holes']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  // findOneAndUpdate
+  Match.findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
+    .then(match => {
+      if (!match) {
+        return res.status(404).send();
+      }
+      res.send({ match });
+    })
+    .catch(e => res.status(400).send());
 });
 
 app.listen(port, () => {

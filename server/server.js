@@ -1,3 +1,4 @@
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,11 +7,12 @@ const { mongoose } = require('./db/mongoose');
 const { Match } = require('./models/match');
 
 const app = express();
+const port = process.env.PORT;
 
 app.use(bodyParser.json(), cors()); // use bodyParser middleware
 
 app.post('/matches', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const match = new Match(req.body);
 
   match.save().then(
@@ -35,8 +37,8 @@ app.get('/matches', (req, res) => {
     });
 });
 
-app.listen(8080, () => {
-  console.log('Started on port 8080');
+app.listen(port, () => {
+  console.log(`Started on port 8080 ${port}`);
 });
 
 module.exports = {

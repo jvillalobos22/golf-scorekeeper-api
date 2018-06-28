@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const HoleSchema = new Schema({
   holeNumber: { type: Number, min: 1, max: 27, required: true },
   par: { type: Number, min: 3, max: 5, required: true },
-  score: { type: Number, min: 1, max: 25 }
+  score: { type: Number, min: 0, max: 25 }
 });
 
 const MatchSchema = new Schema({

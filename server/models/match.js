@@ -8,14 +8,34 @@ const HoleSchema = new Schema({
 });
 
 const MatchSchema = new Schema({
+  title: { type: String, trim: true, required: true },
+  // user_id: {}, // foreign key to User
+  // course_id: {}, // foreign key to Course
+  numberHoles: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: value => {
+        return [6, 9, 18, 27, 36].indexOf(value) !== -1;
+      },
+      message: 'Value must be one of 6, 9, 18, 27, 32'
+    }
+  },
+  // totalScore: {},
+  par: { type: Number, min: 18, max: 90, required: true },
+  date: { type: Date, required: true, default: new Date() },
+  // timeStart: {},
+  // timeEnd: {},
+  // teeColor: {},
+  isComplete: { type: Boolean, required: true, default: false },
+  // guestPlayers: [GuestPlayersSchema],
+  // scores: [ScoresSchema],
   course: {
     name: { type: String, trim: true, required: true },
     location: { type: String, trim: true },
-    par: { type: Number, min: 18, max: 90, required: true },
     holes: { type: Number, min: 1, max: 27, required: true }
   },
-  date: { type: Date, required: true, default: new Date() },
-  holes: [HoleSchema]
+  holes: [HoleSchema] // to be replaced by scores
 });
 
 const Match = mongoose.model('Match', MatchSchema);

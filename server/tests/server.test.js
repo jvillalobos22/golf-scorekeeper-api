@@ -4,7 +4,7 @@ const request = require('supertest');
 const { app } = require('../server');
 const { Match } = require('../models/match');
 
-const { matches, newMatch, populateMatches } = require('./seed/seed');
+const { matches, badMatch, newMatch, populateMatches } = require('./seed/seed');
 
 beforeEach(populateMatches);
 
@@ -30,6 +30,21 @@ describe('POST /matches', () => {
         Match.find()
           .then(matches => {
             expect(matches.length).toBe(3);
+            done();
+          })
+          .catch(e => done(e));
+      });
+  });
+
+  it('should fail with bad holeNumbers value', done => {
+    request(app)
+      .post('/matches')
+      .send(badMatch)
+      .expect(400)
+      .end((err, res) => {
+        Match.find()
+          .then(matches => {
+            expect(matches.length).toBe(2);
             done();
           })
           .catch(e => done(e));

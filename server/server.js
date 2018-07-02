@@ -66,11 +66,20 @@ app.delete('/matches/:id', (req, res) => {
 app.patch('/matches/:id', (req, res) => {
   var id = req.params.id;
 
-  var body = _.pick(req.body, ['course', 'holes']);
+  var body = _.pick(req.body, [
+    'course',
+    'holes',
+    'date',
+    'par',
+    'title',
+    'isComplete'
+  ]);
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
+
+  console.log(body);
 
   // findOneAndUpdate
   Match.findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
@@ -78,6 +87,7 @@ app.patch('/matches/:id', (req, res) => {
       if (!match) {
         return res.status(404).send();
       }
+      console.log(match);
       res.send({ match });
     })
     .catch(e => res.status(400).send());

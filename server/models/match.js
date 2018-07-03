@@ -4,7 +4,23 @@ const mongoose = require('mongoose');
 const HoleSchema = new Schema({
   holeNumber: { type: Number, min: 1, max: 27, required: true },
   par: { type: Number, min: 3, max: 5, required: true },
-  score: { type: Number, min: 0, max: 25 }
+  score: { type: Number, min: 0, max: 25 },
+  // handicap: {},
+  // yardage: {},
+  teeDirection: {
+    type: String,
+    validate: {
+      validator: value => {
+        return ['LEFT', 'RIGHT', 'CENTER', '-'].indexOf(value) !== -1;
+      },
+      message: 'Value must be one of LEFT, RIGHT, CENTER'
+    }
+  },
+  putts: { type: Number, min: 0, max: 25 },
+  mulligans: { type: Number, min: 0, max: 25 }
+  // timeStart: {},
+  // timeEnd: {},
+  // guestScores: {GuestScoresSchema}
 });
 
 const MatchSchema = new Schema({

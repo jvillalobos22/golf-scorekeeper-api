@@ -51,7 +51,7 @@ userSchema.methods = {
           _id: user._id.toHexString(),
           access
         },
-        'abc123' // TODO: replace with env variable
+        process.env.JWT_SECRET
       )
       .toString();
 
@@ -78,7 +78,7 @@ userSchema.statics = {
     let decoded;
 
     try {
-      decoded = jwt.verify(token, 'abc123'); // TODO: replace with env variable
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
       return Promise.reject();
     }

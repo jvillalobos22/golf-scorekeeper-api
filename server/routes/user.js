@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models/user');
 const passport = require('../passport');
+const { authenticate } = require('../middleware/authenticate');
 
 router.post('/', (req, res) => {
   console.log('user signup');
@@ -21,46 +22,55 @@ router.post('/', (req, res) => {
         password: password,
         displayName: displayName
       });
-      newUser.save((err, savedUser) => {
-        if (err) return res.json(err);
-        res.json({
-          _id: savedUser._id,
-          username: savedUser.username,
-          displayName: savedUser.displayName
+
+      newUser
+        .save()
+        .then(() => {
+          if (err) return res.json(err);
+
+          return newUser.generateAuthToken();
+        })
+        .then(token => {
+          res.header('x-auth', token).send(newUser);
+        })
+        .catch(e => {
+          res.status(400).send(e);
         });
-      });
     }
   });
 });
 
 router.post(
   '/login',
-  function(req, res, next) {
-    console.log('routes/user.js, login, req.body: ');
-
-    console.log(req.body);
-    next();
-  },
-  passport.authenticate('local'),
+  passport.authenticate('local', { session: false }),
   (req, res) => {
-    console.log('logged in', req.user);
-    var userInfo = {
-      username: req.user.username,
-      _id: req.user._id,
-      displayName: req.user.displayName
-    };
-    res.send(userInfo);
+    // console.log('logged in', req.user);
+
+    req.user
+      .generateAuthToken()
+      .then(token => {
+        res.header('x-auth', token).send(req.user);
+      })
+      .catch(e => res.status(400).send());
   }
 );
 
-router.get('/', (req, res, next) => {
+// router.get('/', (req, res, next) => {
+//   console.log('===== user!!======');
+//   console.log(req.user);
+//   var token = req.header('x-auth');
+
+//   if (req.user) {
+//     res.json({ user: req.user });
+//   } else {
+//     res.json({ user: null });
+//   }
+// });
+
+router.get('/', authenticate, (req, res, next) => {
   console.log('===== user!!======');
-  console.log(req.user);
-  if (req.user) {
-    res.json({ user: req.user });
-  } else {
-    res.json({ user: null });
-  }
+
+  res.send(req.user);
 });
 
 router.post('/logout', (req, res) => {

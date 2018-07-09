@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
-// TODO: refactor username to email
+// TODO: refactor username to email and validate email using validator
 const userSchema = new Schema({
   username: {
     type: String,
@@ -94,13 +94,11 @@ userSchema.statics = {
 userSchema.pre('save', function(next) {
   const user = this;
 
-  console.log('pre save ***************');
   if (!this.password) {
-    console.log('models/user.js --- NO PASSWORD PROVIDED');
+    // console.log('models/user.js --- NO PASSWORD PROVIDED');
     next();
   } else {
     if (user.isModified('password')) {
-      console.log('models/user.js --- hashPassword in pre save');
       this.password = this.hashPassword(this.password);
     }
     next();

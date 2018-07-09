@@ -4,9 +4,8 @@ const { User } = require('../models/user');
 const passport = require('../passport');
 const { authenticate } = require('../middleware/authenticate');
 
+// POST /user
 router.post('/', (req, res) => {
-  console.log('user signup');
-
   const { username, password, displayName } = req.body;
   // ADD VALIDATION
   User.findOne({ username: username }, (err, user) => {
@@ -40,12 +39,11 @@ router.post('/', (req, res) => {
   });
 });
 
+// POST /user/login
 router.post(
   '/login',
   passport.authenticate('local', { session: false }),
   (req, res) => {
-    // console.log('logged in', req.user);
-
     req.user
       .generateAuthToken()
       .then(token => {
@@ -55,21 +53,8 @@ router.post(
   }
 );
 
-// router.get('/', (req, res, next) => {
-//   console.log('===== user!!======');
-//   console.log(req.user);
-//   var token = req.header('x-auth');
-
-//   if (req.user) {
-//     res.json({ user: req.user });
-//   } else {
-//     res.json({ user: null });
-//   }
-// });
-
+// GET /user
 router.get('/', authenticate, (req, res, next) => {
-  console.log('===== user!!======');
-
   res.send(req.user);
 });
 
@@ -82,6 +67,7 @@ router.post('/logout', (req, res) => {
   }
 });
 
+// DELETE /user/logout
 router.delete('/logout', authenticate, (req, res) => {
   req.user.removeToken(req.token).then(
     () => {

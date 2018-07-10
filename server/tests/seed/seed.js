@@ -1,8 +1,43 @@
 const { ObjectID } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 const { Match } = require('../../models/match');
+const { User } = require('../../models/user');
+
+const userOneId = new ObjectID();
+const userTwoId = new ObjectID();
+
+const users = [
+  {
+    _id: userOneId,
+    username: 'juan@email.com',
+    password: 'userOnePass',
+    tokens: [
+      {
+        access: 'auth',
+        token: jwt
+          .sign({ _id: userOneId, access: 'auth' }, process.env.JWT_SECRET)
+          .toString()
+      }
+    ]
+  },
+  {
+    _id: userTwoId,
+    username: 'joey@email.com',
+    password: 'userTwoPass',
+    tokens: [
+      {
+        access: 'auth',
+        token: jwt
+          .sign({ _id: userTwoId, access: 'auth' }, process.env.JWT_SECRET)
+          .toString()
+      }
+    ]
+  }
+];
 
 const newMatch = {
+  _creator: userOneId,
   title: 'Super fun day golfing',
   numberHoles: 18,
   course: {
@@ -35,6 +70,7 @@ const newMatch = {
 };
 
 const badMatch = {
+  _creator: userOneId,
   title: 'Bad Match',
   numberHoles: 7,
   course: {
@@ -59,6 +95,7 @@ const badMatch = {
 
 const matches = [
   {
+    _creator: userOneId,
     _id: new ObjectID(),
     title: 'Super fun day golfing 2',
     par: 72,
@@ -91,6 +128,7 @@ const matches = [
     ]
   },
   {
+    _creator: userTwoId,
     _id: new ObjectID(),
     title: 'Super fun day golfing 3',
     par: 72,
@@ -132,4 +170,23 @@ const populateMatches = done => {
     .catch(e => done(e));
 };
 
-module.exports = { matches, badMatch, newMatch, populateMatches };
+const populateUsers = done => {
+  User.remove({})
+    .then(() => {
+      const userOne = new User(users[0]).save();
+      const userTwo = new User(users[1]).save();
+
+      return Promise.all([userOne, userTwo]);
+    })
+    .then(() => done())
+    .catch(e => done(e));
+};
+
+module.exports = {
+  matches,
+  users,
+  badMatch,
+  newMatch,
+  populateMatches,
+  populateUsers
+};

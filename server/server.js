@@ -3,95 +3,50 @@ require('./config/config');
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const session = require('express-session');
+
 const { ObjectID } = require('mongodb');
 const cors = require('cors');
 
 const { mongoose } = require('./db/mongoose');
 const { Match } = require('./models/match');
+const passport = require('./passport');
+const { authenticate } = require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT;
 
-app.use(bodyParser.json(), cors()); // use bodyParser middleware
+// Route requires
+const user = require('./routes/user');
+const match = require('./routes/match');
 
-// POST /matches
-app.post('/matches', (req, res) => {
-  // console.log(req.body);
-  const match = new Match(req.body);
-
-  match.save().then(
-    doc => {
-      res.send(doc);
-    },
-    e => {
-      res.status(400).send(e);
-    }
-  );
-});
-
-// GET /matches
-app.get('/matches', (req, res) => {
-  // console.log(req.body);
-
-  Match.find()
-    .then(matches => {
-      res.send({ matches });
-    })
-    .catch(e => {
-      res.status(400).send(e);
-    });
-});
-
-// DELETE /matches/:id
-app.delete('/matches/:id', (req, res) => {
-  const id = req.params.id;
-
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-
-  Match.findOneAndRemove({
-    _id: id
+// Middleware
+app.use(
+  bodyParser.json(),
+  cors({
+    credentials: true,
+    origin: true,
+    allowedHeaders: ['x-auth', 'Content-Type', 'Authorization'],
+    exposedHeaders: ['x-auth', 'Content-Type', 'Authorization']
   })
-    .then(match => {
-      if (!match) return res.status(404).send();
-      res.send({ match });
-    })
-    .catch(e => {
-      res.status(400).send();
-    });
-});
+); // use bodyParser middleware
+app.use(morgan('dev'));
+app.use(
+  session({
+    secret: 'stan-the-man',
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
-// PATCH /matches/:id
-app.patch('/matches/:id', (req, res) => {
-  var id = req.params.id;
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-  var body = _.pick(req.body, [
-    'course',
-    'holes',
-    'date',
-    'par',
-    'title',
-    'isComplete'
-  ]);
-
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-
-  console.log(body);
-
-  // findOneAndUpdate
-  Match.findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
-    .then(match => {
-      if (!match) {
-        return res.status(404).send();
-      }
-      console.log(match);
-      res.send({ match });
-    })
-    .catch(e => res.status(400).send());
-});
+// Routes
+app.use('/user', user);
+app.use('/matches', match);
 
 app.listen(port, () => {
   console.log(`Started on port ${port}`);

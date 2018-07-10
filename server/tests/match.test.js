@@ -4,11 +4,19 @@ const request = require('supertest');
 const { app } = require('../server');
 const { Match } = require('../models/match');
 
-const { matches, badMatch, newMatch, populateMatches } = require('./seed/seed');
+const {
+  users,
+  matches,
+  badMatch,
+  newMatch,
+  populateMatches,
+  populateUsers
+} = require('./seed/seed');
 
 beforeEach(populateMatches);
+beforeEach(populateUsers);
 
-describe('Canary Test', () => {
+describe('Match Canary Test', () => {
   it('should pass a canary test', () => {
     expect(1).toBe(1);
   });
@@ -18,6 +26,7 @@ describe('POST /matches', () => {
   it('should create a new match', done => {
     request(app)
       .post('/matches')
+      .set('x-auth', users[0].tokens[0].token)
       .send(newMatch)
       .expect(200)
       .expect(res => {
@@ -39,6 +48,7 @@ describe('POST /matches', () => {
   it('should fail with bad holeNumbers value', done => {
     request(app)
       .post('/matches')
+      .set('x-auth', users[0].tokens[0].token)
       .send(badMatch)
       .expect(400)
       .end((err, res) => {
@@ -56,9 +66,10 @@ describe('GET /matches', () => {
   it('should get all matches', done => {
     request(app)
       .get('/matches')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => {
-        expect(res.body.matches.length).toBe(2);
+        expect(res.body.matches.length).toBe(1);
       })
       .end(done);
   });
@@ -70,6 +81,7 @@ describe('DELETE /matches/:id', () => {
 
     request(app)
       .delete(`/matches/${hexId}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => {
         expect(res.body.match._id).toBe(hexId);
@@ -93,6 +105,7 @@ describe('PATCH /matches/:id', () => {
 
     request(app)
       .patch(`/matches/${hexId}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send({
         course: {
           name: 'Super Secret Golf Course',

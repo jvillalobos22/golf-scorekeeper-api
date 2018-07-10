@@ -24,6 +24,10 @@ const HoleSchema = new Schema({
 });
 
 const MatchSchema = new Schema({
+  _creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
   title: { type: String, trim: true, required: true },
   // user_id: {}, // foreign key to User
   // course_id: {}, // foreign key to Course

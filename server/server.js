@@ -22,7 +22,15 @@ const user = require('./routes/user');
 const match = require('./routes/match');
 
 // Middleware
-app.use(bodyParser.json(), cors()); // use bodyParser middleware
+app.use(
+  bodyParser.json(),
+  cors({
+    credentials: true,
+    origin: true,
+    allowedHeaders: ['x-auth', 'Content-Type', 'Authorization'],
+    exposedHeaders: ['x-auth', 'Content-Type', 'Authorization']
+  })
+); // use bodyParser middleware
 app.use(morgan('dev'));
 app.use(
   session({

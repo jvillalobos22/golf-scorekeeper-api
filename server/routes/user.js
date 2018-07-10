@@ -69,6 +69,8 @@ router.post('/logout', (req, res) => {
 
 // DELETE /user/logout
 router.delete('/logout', authenticate, (req, res) => {
+  console.log('request');
+  console.log(req.headers);
   req.user.removeToken(req.token).then(
     () => {
       res.status(200).send();

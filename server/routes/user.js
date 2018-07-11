@@ -4,39 +4,27 @@ const { User } = require('../models/user');
 const passport = require('../passport');
 const { authenticate } = require('../middleware/authenticate');
 
-// POST /user
 router.post('/', (req, res) => {
   const { username, password, displayName } = req.body;
   // ADD VALIDATION
-  User.findOne({ username: username }, (err, user) => {
-    if (err) {
-      console.log('User.js post error: ', err);
-    } else if (user) {
-      res.status(400).json({
-        error: `Sorry, already a user with the username: ${username}`
-      });
-    } else {
-      const newUser = new User({
-        username: username,
-        password: password,
-        displayName: displayName
-      });
 
-      newUser
-        .save()
-        .then(() => {
-          if (err) return res.json(err);
-
-          return newUser.generateAuthToken();
-        })
-        .then(token => {
-          res.header('x-auth', token).send(newUser);
-        })
-        .catch(e => {
-          res.status(400).send(e);
-        });
-    }
+  var user = new User({
+    username,
+    password,
+    displayName
   });
+
+  user
+    .save()
+    .then(() => {
+      return user.generateAuthToken();
+    })
+    .then(token => {
+      res.header('x-auth', token).send(user);
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    });
 });
 
 // POST /user/login
